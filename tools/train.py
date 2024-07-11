@@ -15,7 +15,7 @@ import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 import _init_paths
 import models
@@ -32,7 +32,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        default="configs/cityscapes/pidnet_small_cityscapes.yaml",
+                        default="configs/wire1/pidnet_small_wire.yaml",
                         type=str)
     parser.add_argument('--seed', type=int, default=304)    
     parser.add_argument('opts',
@@ -215,4 +215,10 @@ def main():
     logger.info('Done')
 
 if __name__ == '__main__':
+    # 获取当前文件所在的目录
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # 获取项目的根目录
+    root_dir = os.path.dirname(current_dir)
+    # 设置运行根目录
+    os.chdir(root_dir)
     main()

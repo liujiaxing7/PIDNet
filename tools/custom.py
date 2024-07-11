@@ -39,9 +39,10 @@ color_map = [(128, 64,128),
 def parse_args():
     parser = argparse.ArgumentParser(description='Custom Input')
     
-    parser.add_argument('--a', help='pidnet-s, pidnet-m or pidnet-l', default='pidnet-l', type=str)
+    parser.add_argument('--a', help='pidnet-s, pidnet-m or pidnet-l', default='pidnet-s', type=str)
     parser.add_argument('--c', help='cityscapes pretrained or not', type=bool, default=True)
-    parser.add_argument('--p', help='dir for pretrained model', default='../pretrained_models/cityscapes/PIDNet_L_Cityscapes_test.pt', type=str)
+    parser.add_argument('--p', help='dir for pretrained model', default='../pretrained_models/cityscapes/PIDNet_S_Cityscapes_test.pt', type=str)
+    # parser.add_argument('--p', help='dir for pretrained model', default='../pretrained_models/camvid/PIDNet_S_Camvid_Test.pt', type=str)
     parser.add_argument('--r', help='root or dir for input images', default='../samples/', type=str)
     parser.add_argument('--t', help='the format of input images (.jpg, .png, ...)', default='.png', type=str)     
 
@@ -74,8 +75,9 @@ def load_pretrained(model, pretrained):
 if __name__ == '__main__':
     args = parse_args()
     images_list = glob.glob(args.r+'*'+args.t)
-    sv_path = args.r+'outputs/'
-    
+    # sv_path = args.r+'outputs/'
+    sv_path = "/media/xin/work/github_pro/seg_model/PIDNet/samples/outputs_CS"
+
     model = models.pidnet.get_pred_model(args.a, 19 if args.c else 11)
     model = load_pretrained(model, args.p).cuda()
     model.eval()
@@ -100,7 +102,8 @@ if __name__ == '__main__':
             
             if not os.path.exists(sv_path):
                 os.mkdir(sv_path)
-            sv_img.save(sv_path+img_name)
+            img_name = os.path.basename(img_name)
+            sv_img.save(sv_path+"/"+img_name)
             
             
             

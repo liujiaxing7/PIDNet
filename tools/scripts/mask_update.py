@@ -1,0 +1,41 @@
+"""
+将像素值不是0的改为【128, 64, 128】，是0的改为【128，128，128】
+"""
+
+import cv2
+import numpy as np
+import os
+from tqdm import tqdm
+
+
+def modify_image_pixels(input_dir):
+    # 收集所有图像文件路径
+    image_files = []
+    for root, dirs, files in os.walk(input_dir):
+        for file in files:
+            if file.endswith(('.png', '.jpg', '.jpeg')):  # 确保处理图像文件
+                image_files.append(os.path.join(root, file))
+
+    # 使用tqdm添加进度条
+    for file_path in tqdm(image_files, desc="Processing images"):
+        # 读取图像
+        img = cv2.imread(file_path)
+
+        # 检查图像是否加载成功
+        if img is None:
+            print(f"图像加载失败：{file_path}")
+            continue
+
+        # 修改像素值
+        modified_img = np.where(np.all(img == [0, 0, 0], axis=-1, keepdims=True),
+                                [128, 128, 128],
+                                [128, 64, 128])
+
+        # 保存修改后的图像
+        cv2.imwrite(file_path, modified_img)
+
+if __name__ == '__main__':
+    # 调用函数并传入路径
+    input_directory = '/media/xin/data/data/seg_data/ours/train_data/gtFine/mask_color'
+    modify_image_pixels(input_directory)
+

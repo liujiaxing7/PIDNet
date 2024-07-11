@@ -16,10 +16,10 @@ algc = False
 
 class PIDNet(nn.Module):
 
-    def __init__(self, m=2, n=3, num_classes=19, planes=64, ppm_planes=96, head_planes=128, augment=True):
+    def __init__(self, m=2, n=3, num_classes=19, planes=64, ppm_planes=96, head_planes=128, augment=True,is_test=False):
         super(PIDNet, self).__init__()
         self.augment = augment
-        
+        self.is_test = is_test
         # I Branch
         self.conv1 =  nn.Sequential(
                           nn.Conv2d(3,planes,kernel_size=3, stride=2, padding=1),
@@ -179,6 +179,9 @@ class PIDNet(nn.Module):
             x_extra_d = self.seghead_d(temp_d)
             return [x_extra_p, x_, x_extra_d]
         else:
+            if self.is_test:
+                pred = F.interpolate(x_, size=[height_output * 8, width_output * 8],mode='bilinear', align_corners=True)
+                x_ = torch.argmax(pred, dim=1).squeeze(0)
             return x_      
 
 def get_seg_model(cfg, imgnet_pretrained):
