@@ -7,11 +7,10 @@ from models.pidnet import PIDNet
 def GetArgs():
     parser = argparse.ArgumentParser(description="",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--weights", type=str, default='/media/xin/work/github_pro/seg_model/PIDNet/output/wire1/pidnet_small_wire/best.pt',help="model path")
-    parser.add_argument("--output", type=str, default="PIDNet_wire_256x640.onnx",help="output model path")
+    parser.add_argument("--weights", type=str, default='/media/xin/work/github_pro/seg_model/PIDNet/runs/p0/wire/pidnet_small_wire/best_20.pt',help="model path")
+    parser.add_argument("--output", type=str, default="PIDNet_wire_256x640_p0_20.onnx",help="output model path")
     parser.add_argument('--a', help='pidnet-s, pidnet-m or pidnet-l', default='pidnet-s', type=str)
-    parser.add_argument('--c', help='cityscapes pretrained or not', type=str, default="wire1")
-
+    parser.add_argument('--c', help='cityscapes pretrained or not', type=str, default="wire")
     args = parser.parse_args()
     return args
 
@@ -38,7 +37,7 @@ def main():
     H, W = 256, 640
     args = GetArgs()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    data_type = {"cityscapes":19,"camvid":11,"wire1":2}
+    data_type = {"cityscapes":19,"camvid":11,"wire":2}
     model = PIDNet(m=2, n=3, num_classes=data_type[args.c], planes=32, ppm_planes=96, head_planes=128, augment=False,is_test=True)
     model = load_pretrained(model, args.weights).to(device)
     model.eval()

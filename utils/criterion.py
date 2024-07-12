@@ -70,8 +70,11 @@ class OhemCrossEntropy(nn.Module):
         tmp_target[tmp_target == self.ignore_label] = 0
         pred = pred.gather(1, tmp_target.unsqueeze(1))
         pred, ind = pred.contiguous().view(-1,)[mask].contiguous().sort()
-        min_value = pred[min(self.min_kept, pred.numel() - 1)]
-        threshold = max(min_value, self.thresh)
+        try:
+            min_value = pred[min(self.min_kept, pred.numel() - 1)]
+            threshold = max(min_value, self.thresh)
+        except:
+            threshold = self.thresh
 
         pixel_losses = pixel_losses[mask][ind]
         pixel_losses = pixel_losses[pred < threshold]

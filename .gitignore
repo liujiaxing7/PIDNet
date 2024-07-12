@@ -108,8 +108,6 @@ venv.bak/
 # pycharm
 .idea
 
-# datasets
-datasets
 
 # pretraind model
 weights/
@@ -124,3 +122,4 @@ log/
 output/
 samples/
 data/test_data/
+runs/

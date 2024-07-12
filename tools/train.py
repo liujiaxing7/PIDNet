@@ -32,7 +32,7 @@ def parse_args():
     
     parser.add_argument('--cfg',
                         help='experiment configure file name',
-                        default="configs/wire1/pidnet_small_wire.yaml",
+                        default="configs/wire/pidnet_small_wire.yaml",
                         type=str)
     parser.add_argument('--seed', type=int, default=304)    
     parser.add_argument('opts',
@@ -221,4 +221,5 @@ if __name__ == '__main__':
     root_dir = os.path.dirname(current_dir)
     # 设置运行根目录
     os.chdir(root_dir)
+
     main()
