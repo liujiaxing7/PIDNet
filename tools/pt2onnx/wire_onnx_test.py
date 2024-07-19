@@ -16,8 +16,8 @@ import numpy as np
 def GetArgs():
     parser = argparse.ArgumentParser(description="",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--input_data", type=str, default="/media/xin/data/data/seg_data/ours/test_data/0705_test/test2.txt",help="")
-    parser.add_argument("--model", type=str, default="/media/xin/work/github_pro/seg_model/PIDNet/tools/pt2onnx/PIDNet_wire_256x640_p0_20.onnx",help="")
+    parser.add_argument("--input_data", type=str, default="/media/xin/data/data/seg_data/ours/test_data/0705_cam1/0714_test.txt",help="")
+    parser.add_argument("--model", type=str, default="/media/xin/work/github_pro/seg_model/PIDNet/tools/pt2onnx/PIDNet_wire_256x640_p6.onnx",help="")
     parser.add_argument('--dataset', type=str, default='wire',help='dataset name (default: citys)')
     parser.add_argument('--show_rgb', action='store_true',default=False)
     args = parser.parse_args()
@@ -70,6 +70,11 @@ def test_onnx(img_path, model_file,show_rgb=True):
     if not show_rgb:
         cv_image = (pred * 255).astype(np.uint8)
         img_org = cv2.cvtColor(img_res, cv2.COLOR_BGR2GRAY)
+        # new_array = np.full((224, 640), 255, dtype=np.uint8)
+        # # 垂直拼接数组
+        # result = np.vstack((new_array, cv_image))
+        # res_path = os.path.join("/media/xin/work/github_pro/seg_model/PIDNet/data/test_data/res",os.path.basename(img_path))
+        # cv2.imwrite(res_path,result)
     else:
         cv_image = np.zeros_like(image).astype(np.uint8)
         for i, color in enumerate(color_map):
@@ -89,9 +94,9 @@ def main():
             files = f.readlines()
             for img in tqdm(files,desc='Processing'):
                 merged_image = test_onnx(img.strip(), args.model,show_rgb=show_rgb)
-                root_path = "/media/xin/data/data/seg_data/ours/test_data/0705_test/PIDNet_test2"
+                root_path = "/media/xin/data/data/seg_data/ours/test_data/0705_cam1"
                 img_name = os.path.basename(img.strip())
-                save_img_path = os.path.join(root_path, "PIDNet_p0_20", img_name)
+                save_img_path = os.path.join(root_path, "PIDNet_p6", img_name)
                 if not os.path.exists(os.path.dirname(save_img_path)):
                     os.makedirs(os.path.dirname(save_img_path))
                 cv2.imwrite(save_img_path, merged_image)

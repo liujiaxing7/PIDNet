@@ -3,14 +3,14 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/p4'
-LOG_DIR: 'log/p4'
+OUTPUT_DIR: 'runs/local'
+LOG_DIR: 'log/local'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: wire
-  ROOT: /data1/VOC/segData/Record_data
+  ROOT: /media/xin/data/data/seg_data/ours/train_data/Record_data
   TEST_SET: 's0.0.5/val.txt'
   TRAIN_SET: 's0.0.5/train.txt'
   NUM_CLASSES: 2
@@ -27,7 +27,7 @@ LOSS:
 TRAIN:
   IMAGE_SIZE:
   - 640
-  - 400
+  - 480
   BASE_SIZE: 640
   BATCH_SIZE_PER_GPU: 24
   SHUFFLE: true
@@ -46,7 +46,7 @@ TRAIN:
 TEST:
   IMAGE_SIZE:
   - 640
-  - 400
+  - 480
   BASE_SIZE: 640
   BATCH_SIZE_PER_GPU: 8
   FLIP_TEST: false

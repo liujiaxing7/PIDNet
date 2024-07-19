@@ -3,16 +3,16 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/p2'
-LOG_DIR: 'log/p2'
+OUTPUT_DIR: 'runs/p6'
+LOG_DIR: 'log/p6'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: wire
   ROOT: /data1/VOC/segData/Record_data
-  TEST_SET: 's0.0.4/val.txt'
-  TRAIN_SET: 's0.0.4/train.txt'
+  TEST_SET: 's0.0.6/val.txt'
+  TRAIN_SET: 's0.0.6/train.txt'
   NUM_CLASSES: 2
 MODEL:
   NAME: pidnet_s
@@ -22,7 +22,7 @@ LOSS:
   USE_OHEM: true
   OHEMTHRES: 0.9
   OHEMKEEP: 131072
-  BALANCE_WEIGHTS: [0.8, 1.0]
+  BALANCE_WEIGHTS: [0.4, 1.0]
   SB_WEIGHTS: 1.0
 TRAIN:
   IMAGE_SIZE:
@@ -32,7 +32,7 @@ TRAIN:
   BATCH_SIZE_PER_GPU: 24
   SHUFFLE: true
   BEGIN_EPOCH: 0
-  END_EPOCH: 120
+  END_EPOCH: 100
   RESUME: false
   OPTIMIZER: sgd
   LR: 0.005

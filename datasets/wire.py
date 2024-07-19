@@ -22,7 +22,8 @@ class Wire(BaseDataset):
                  scale_factor=16,
                  mean=[0.485, 0.456, 0.406],
                  std=[0.229, 0.224, 0.225],
-                 bd_dilate_size=4):
+                 bd_dilate_size=4
+                 ):
 
         super(Wire, self).__init__(ignore_label, base_size,
                                      crop_size, scale_factor, mean, std)
@@ -52,6 +53,7 @@ class Wire(BaseDataset):
 
         for image_path in self.img_list:
             label_path = image_path.replace("leftImg8bit/train","gtFine/mask_color").replace("jpg","png")
+            # label_path = image_path.replace("leftImg8bit","gtFine").replace("jpg","png")
             name = os.path.join("data/wire",self.list_path)
             if os.path.exists(label_path):
                 files.append({
@@ -76,13 +78,23 @@ class Wire(BaseDataset):
 
         return color_map.astype(np.uint8)
 
+    def get_crop_img(self, img):
+        # 裁剪图像
+        crop_box = (0, 80, img.size[0], img.size[1])
+        cropped_img = img.crop(crop_box)
+        return cropped_img
+
     def __getitem__(self, index):
         item = self.files[index]
         name = item["name"]
         image = Image.open(item["img"]).convert('RGB')
+        if image.size[1] == 480:
+            image = self.get_crop_img(image)
         image = np.array(image)
         size = image.shape
         color_map = Image.open(item["label"]).convert('RGB')
+        if color_map.size[1] == 480:
+            color_map = self.get_crop_img(color_map)
         color_map = np.array(color_map)
         label = self.color2label(color_map)
 
