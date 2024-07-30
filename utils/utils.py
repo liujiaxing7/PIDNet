@@ -52,9 +52,12 @@ class FullModel(nn.Module):
     filler = torch.ones_like(labels) * config.TRAIN.IGNORE_LABEL
     bd_label = torch.where(F.sigmoid(outputs[-1][:,0,:,:])>0.8, labels, filler)
     loss_sb = self.sem_loss(outputs[-2], bd_label)
+    # if torch.isnan(loss_sb).any():
+    #     device = loss_sb.device
+    #     loss_sb = torch.tensor(0.0).to(device)
     loss = loss_s + loss_b + loss_sb
 
-    return torch.unsqueeze(loss,0), outputs[:-1], acc, [loss_s, loss_b]
+    return torch.unsqueeze(loss,0), outputs[:-1], acc, [loss_s, loss_b,loss_sb]
 
 
 class AverageMeter(object):

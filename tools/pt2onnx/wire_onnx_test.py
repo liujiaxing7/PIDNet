@@ -16,8 +16,9 @@ import numpy as np
 def GetArgs():
     parser = argparse.ArgumentParser(description="",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--input_data", type=str, default="/media/xin/data/data/seg_data/ours/test_data/0705_cam1/0714_test.txt",help="")
-    parser.add_argument("--model", type=str, default="/media/xin/work/github_pro/seg_model/PIDNet/tools/pt2onnx/PIDNet_wire_256x640_p6.onnx",help="")
+    parser.add_argument("--input_data", type=str, default="/media/xin/data/data/seg_data/ours/test_data/cam1_test/test_0705/test.txt",help="")
+    parser.add_argument("--model", type=str, default="/media/xin/work/github_pro/seg_model/PIDNet/tools/pt2onnx/PIDNet_wire_256x640_p7.onnx",help="")
+    parser.add_argument("--output_data", type=str, default="/media/xin/data/data/seg_data/ours/test_data/cam1_test/test_0705",help="")
     parser.add_argument('--dataset', type=str, default='wire',help='dataset name (default: citys)')
     parser.add_argument('--show_rgb', action='store_true',default=False)
     args = parser.parse_args()
@@ -41,8 +42,8 @@ def img_crop(image,target_size):
 
 
 def test_onnx(img_path, model_file,show_rgb=True):
-    color_map = [(128, 64, 128),
-                 (128, 128, 128)]
+    color_map = [(128, 128, 128),
+                 (128, 64, 128)]
     model = ONNXModel(model_file)
     img_org = cv2.imread(img_path)
     if "224" in model_file:
@@ -71,7 +72,7 @@ def test_onnx(img_path, model_file,show_rgb=True):
         cv_image = (pred * 255).astype(np.uint8)
         img_org = cv2.cvtColor(img_res, cv2.COLOR_BGR2GRAY)
         # new_array = np.full((224, 640), 255, dtype=np.uint8)
-        # # 垂直拼接数组
+        # 垂直拼接数组:拼接到图像原始尺寸
         # result = np.vstack((new_array, cv_image))
         # res_path = os.path.join("/media/xin/work/github_pro/seg_model/PIDNet/data/test_data/res",os.path.basename(img_path))
         # cv2.imwrite(res_path,result)
@@ -85,20 +86,23 @@ def test_onnx(img_path, model_file,show_rgb=True):
     merged_image = np.hstack((img_org, cv_image))
     return merged_image
 
-def main():
+def main(model_onnx):
     args = GetArgs()
     img_path = args.input_data
     show_rgb = args.show_rgb
+    # model_name = os.path.basename(args.model).split(".")[0]
+    model_name = os.path.basename(model_onnx).split(".")[0]
+    save_path = os.path.join(args.output_data,model_name)
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     if img_path.endswith(".txt"):
         with open(img_path) as f:
             files = f.readlines()
             for img in tqdm(files,desc='Processing'):
-                merged_image = test_onnx(img.strip(), args.model,show_rgb=show_rgb)
-                root_path = "/media/xin/data/data/seg_data/ours/test_data/0705_cam1"
+                # merged_image = test_onnx(img.strip(), args.model,show_rgb=show_rgb)
+                merged_image = test_onnx(img.strip(), model_onnx,show_rgb=show_rgb)
                 img_name = os.path.basename(img.strip())
-                save_img_path = os.path.join(root_path, "PIDNet_p6", img_name)
-                if not os.path.exists(os.path.dirname(save_img_path)):
-                    os.makedirs(os.path.dirname(save_img_path))
+                save_img_path = os.path.join(save_path, img_name)
                 cv2.imwrite(save_img_path, merged_image)
                 # cv2.imshow('Converted Image', merged_image)
                 # cv2.waitKey(500)
@@ -110,4 +114,6 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    for i in range(9,10):
+        model_onnx = f"/media/xin/work/github_pro/seg_model/PIDNet/tools/pt2onnx/PIDNet_wire_256x640_p{i}.onnx"
+        main(model_onnx)

@@ -182,6 +182,7 @@ class PIDNet(nn.Module):
             if self.is_test:
                 pred = F.interpolate(x_, size=[height_output * 8, width_output * 8],mode='bilinear', align_corners=True)
                 x_ = torch.argmax(pred, dim=1).squeeze(0)
+                x_ = (x_ == 0).int()
             return x_      
 
 def get_seg_model(cfg, imgnet_pretrained):

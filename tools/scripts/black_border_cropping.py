@@ -1,14 +1,10 @@
-"""
-将像素值不是0的改为【128, 64, 128】，是0的改为【128，128，128】
-"""
-
 import cv2
 import numpy as np
 import os
 from tqdm import tqdm
 
 
-def modify_image_pixels(input_dir):
+def modify_image_pixels(input_dir,crop_pixels=40):
     image_files = []
     for root, dirs, files in os.walk(input_dir):
         for file in files:
@@ -21,15 +17,12 @@ def modify_image_pixels(input_dir):
             print(f"图像加载失败：{file_path}")
             continue
 
-        # 修改像素值
-        modified_img = np.where(np.all(img == [0, 0, 0], axis=-1, keepdims=True),
-                                [128, 128, 128],
-                                [128, 64, 128])
+        # 裁剪图像下边缘40个像素
+        cropped_image = img[:-crop_pixels, :]
 
-        cv2.imwrite(file_path, modified_img)
+        cv2.imwrite(file_path, cropped_image)
 
 if __name__ == '__main__':
     # 调用函数并传入路径
-    input_directory = '/media/xin/data/data/seg_data/ours/train_data/gtFine/mask_color/wire0725'
+    input_directory = '/media/xin/data/data/seg_data/ours/origins/0725_wire/0725_select'
     modify_image_pixels(input_directory)
-

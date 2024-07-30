@@ -82,13 +82,13 @@ def validate(config, testloader, model, writer_dict):
         (config.DATASET.NUM_CLASSES, config.DATASET.NUM_CLASSES, nums))
     with torch.no_grad():
         for idx, batch in enumerate(testloader):
-            image, label, bd_gts, _, _ = batch
+            image, label, bd_gts, _, img_name = batch
             size = label.size()
             image = image.cuda()
             label = label.long().cuda()
             bd_gts = bd_gts.float().cuda()
 
-            losses, pred, _, _ = model(image, label, bd_gts)
+            losses, pred, _, loss_all = model(image, label, bd_gts)
             if not isinstance(pred, (list, tuple)):
                 pred = [pred]
             for i, x in enumerate(pred):
@@ -110,6 +110,11 @@ def validate(config, testloader, model, writer_dict):
 
             loss = losses.mean()
             ave_loss.update(loss.item())
+
+            # print("img_name:",img_name)
+            # print("loss_s:", loss_all[0].shape)
+            # print("loss_b:", loss_all[1])
+            # print("loss_sb:", loss_all[2])
 
     for i in range(nums):
         pos = confusion_matrix[..., i].sum(1)

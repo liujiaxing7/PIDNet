@@ -13,24 +13,23 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 
+from models.pidnet import PIDNet
 
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
-color_map = [(128, 64, 128),
-             (128, 128, 128)]
+color_map = [(128, 128, 128),
+             (128, 64, 128)]
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Custom Input')
-
     parser.add_argument('--a', help='pidnet-s, pidnet-m or pidnet-l', default='pidnet-s', type=str)
     parser.add_argument('--c', help='cityscapes pretrained or not', type=bool, default=True)
     parser.add_argument('--p', help='dir for pretrained model',
-                        default='/media/xin/work/github_pro/seg_model/PIDNet/output/wire1/pidnet_small_wire/best.pt', type=str)
+                        default='/media/xin/work/github_pro/seg_model/PIDNet/runs/p0/wire/pidnet_small_wire/best.pt', type=str)
     # parser.add_argument('--p', help='dir for pretrained model', default='../pretrained_models/camvid/PIDNet_S_Camvid_Test.pt', type=str)
-    parser.add_argument('--r', help='file for input images', default='/media/xin/data/data/seg_data/ours/test_data/0705_test/test.txt', type=str)
-
+    parser.add_argument('--r', help='file for input images', default='/media/xin/data/data/seg_data/ours/test_data/cam1_test/test_0724/test_300.txt', type=str)
     args = parser.parse_args()
 
     return args
@@ -64,9 +63,9 @@ def load_pretrained(model, pretrained):
 if __name__ == '__main__':
     args = parse_args()
     # sv_path = args.r+'outputs/'
-    sv_path = "/media/xin/work/github_pro/seg_model/PIDNet/data/test_data/outputs_wire"
+    sv_path = "/media/xin/work/github_pro/seg_model/PIDNet/data/test_data/outputs_wire1"
 
-    model = models.pidnet.get_pred_model(args.a, 2 if args.c else 11)
+    model = PIDNet(m=2, n=3, num_classes=2, planes=32, ppm_planes=96, head_planes=128, augment=False,is_test=True)
     model = load_pretrained(model, args.p).cuda()
     model.eval()
     with torch.no_grad():
@@ -80,10 +79,10 @@ if __name__ == '__main__':
             img = img.transpose((2, 0, 1)).copy()
             img = torch.from_numpy(img).unsqueeze(0).cuda()
             pred = model(img)
-            pred = F.interpolate(pred, size=img.size()[-2:],
-                                 mode='bilinear', align_corners=True)
-            pred = torch.argmax(pred, dim=1).squeeze(0).cpu().numpy()
-
+            # pred = F.interpolate(pred, size=img.size()[-2:],
+            #                      mode='bilinear', align_corners=True)
+            # pred = torch.argmax(pred, dim=1).squeeze(0).cpu().numpy()
+            pred = pred.cpu().numpy()
             for i, color in enumerate(color_map):
                 for j in range(3):
                     sv_img[:, :, j][pred == i] = color_map[i][j]
@@ -93,6 +92,7 @@ if __name__ == '__main__':
                 os.mkdir(sv_path)
             img_name = os.path.basename(img_path.strip())
             sv_img.save(sv_path + "/" + img_name)
+            break
 
 
 

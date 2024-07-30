@@ -123,3 +123,4 @@ output/
 samples/
 data/test_data/
 runs/
+train_log/

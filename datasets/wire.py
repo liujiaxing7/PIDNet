@@ -3,9 +3,11 @@
 # ------------------------------------------------------------------------------
 
 import os
+
+import cv2
 import numpy as np
 from PIL import Image
-
+import torch
 from .base_dataset import BaseDataset
 
 
@@ -39,12 +41,14 @@ class Wire(BaseDataset):
 
         self.files = self.read_files()
 
-        self.ignore_label = ignore_label
+        # self.ignore_label = ignore_label
+        self.ignore_label = 128
 
-        self.color_list = [[128, 64, 128],
-                           [128, 128, 128]]
+        self.color_list = [[128, 128, 128],[128, 64, 128]]
 
-        self.class_weights = None
+        # self.class_weights = None
+        self.class_weights = torch.FloatTensor([0.9, 1.1]).cuda()
+
 
         self.bd_dilate_size = bd_dilate_size
 
@@ -78,30 +82,29 @@ class Wire(BaseDataset):
 
         return color_map.astype(np.uint8)
 
-    def get_crop_img(self, img):
+    def get_crop_img(self, H,img,size=256):
         # 裁剪图像
-        crop_box = (0, 80, img.size[0], img.size[1])
-        cropped_img = img.crop(crop_box)
-        return cropped_img
+        if H > size:
+            crop_box = (0, H-size, img.size[0], img.size[1])
+            cropped_img = img.crop(crop_box)
+            return cropped_img
+        else:
+            return img
 
     def __getitem__(self, index):
         item = self.files[index]
-        name = item["name"]
+        name = item["img"]
         image = Image.open(item["img"]).convert('RGB')
-        if image.size[1] == 480:
-            image = self.get_crop_img(image)
+        image = self.get_crop_img(image.size[1],image)
         image = np.array(image)
         size = image.shape
         color_map = Image.open(item["label"]).convert('RGB')
-        if color_map.size[1] == 480:
-            color_map = self.get_crop_img(color_map)
+        color_map = self.get_crop_img(color_map.size[1],color_map)
         color_map = np.array(color_map)
         label = self.color2label(color_map)
-
         image, label, edge = self.gen_sample(image, label,
                                              self.multi_scale, self.flip, edge_pad=False,
                                              edge_size=self.bd_dilate_size, city=False)
-
         return image.copy(), label.copy(), edge.copy(), np.array(size), name
 
     def single_scale_inference(self, config, model, image):

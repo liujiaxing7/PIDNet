@@ -3,16 +3,16 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/local'
-LOG_DIR: 'log/local'
+OUTPUT_DIR: 'runs/p9'
+LOG_DIR: 'log/p9'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: wire
   ROOT: /media/xin/data/data/seg_data/ours/train_data/Record_data
-  TEST_SET: 's0.0.5/val.txt'
-  TRAIN_SET: 's0.0.5/train.txt'
+  TEST_SET: 's0.0.7/val.txt'
+  TRAIN_SET: 's0.0.7/train.txt'
   NUM_CLASSES: 2
 MODEL:
   NAME: pidnet_s
@@ -22,12 +22,12 @@ LOSS:
   USE_OHEM: true
   OHEMTHRES: 0.9
   OHEMKEEP: 131072
-  BALANCE_WEIGHTS: [0.5, 0.5]
+  BALANCE_WEIGHTS: [0.4, 1.0]
   SB_WEIGHTS: 1.0
 TRAIN:
   IMAGE_SIZE:
   - 640
-  - 480
+  - 400
   BASE_SIZE: 640
   BATCH_SIZE_PER_GPU: 24
   SHUFFLE: true
@@ -39,14 +39,14 @@ TRAIN:
   WD: 0.0005
   MOMENTUM: 0.9
   NESTEROV: false
-  FLIP: true
-  MULTI_SCALE: true
+  FLIP: false
+  MULTI_SCALE: false
   IGNORE_LABEL: 255
   SCALE_FACTOR: 16
 TEST:
   IMAGE_SIZE:
   - 640
-  - 480
+  - 400
   BASE_SIZE: 640
   BATCH_SIZE_PER_GPU: 8
   FLIP_TEST: false

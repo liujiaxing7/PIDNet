@@ -7,8 +7,8 @@ from models.pidnet import PIDNet
 def GetArgs():
     parser = argparse.ArgumentParser(description="",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--weights", type=str, default='/media/xin/work/github_pro/seg_model/PIDNet/runs/p6/wire/pidnet_small_wire_weights/best.pt',help="model path")
-    parser.add_argument("--output", type=str, default="PIDNet_wire_256x640_p6.onnx",help="output model path")
+    parser.add_argument("--weights", type=str, default='/media/xin/work/github_pro/seg_model/PIDNet/runs/p9/wire/pidnet_small_wire_local/best.pt',help="model path")
+    parser.add_argument("--output", type=str, default="PIDNet_wire_256x640_p9.onnx",help="output model path")
     parser.add_argument('--a', help='pidnet-s, pidnet-m or pidnet-l', default='pidnet-s', type=str)
     parser.add_argument('--c', help='cityscapes pretrained or not', type=str, default="wire")
     args = parser.parse_args()
