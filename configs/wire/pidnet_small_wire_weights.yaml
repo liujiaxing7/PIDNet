@@ -3,16 +3,16 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/p8'
-LOG_DIR: 'log/p8'
+OUTPUT_DIR: 'runs/p11'
+LOG_DIR: 'log/p11'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: wire
   ROOT: /data1/VOC/segData/Record_data
-  TEST_SET: 's0.0.8/val.txt'
-  TRAIN_SET: 's0.0.8/train.txt'
+  TEST_SET: 's0.0.9/val.txt'
+  TRAIN_SET: 's0.0.9/train.txt'
   NUM_CLASSES: 2
 MODEL:
   NAME: pidnet_s
@@ -34,14 +34,14 @@ TRAIN:
   BEGIN_EPOCH: 0
   END_EPOCH: 100
   RESUME: false
-  OPTIMIZER: sgd
+  OPTIMIZER: adamw
   LR: 0.005
   WD: 0.0005
   MOMENTUM: 0.9
   NESTEROV: false
   FLIP: false
   MULTI_SCALE: false
-  IGNORE_LABEL: 255
+  IGNORE_LABEL: 128
   SCALE_FACTOR: 16
 TEST:
   IMAGE_SIZE:

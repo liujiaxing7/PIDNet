@@ -30,6 +30,6 @@ def modify_image_pixels(input_dir):
 
 if __name__ == '__main__':
     # 调用函数并传入路径
-    input_directory = '/media/xin/data/data/seg_data/ours/train_data/gtFine/mask_color/wire0725'
+    input_directory = '/media/xin/data/data/seg_data/ours/train_data/gtFine/mask_color/wire_cam1_0730'
     modify_image_pixels(input_directory)
 

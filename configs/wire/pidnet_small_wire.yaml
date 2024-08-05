@@ -3,8 +3,8 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/p7'
-LOG_DIR: 'log/p7'
+OUTPUT_DIR: 'runs/p10'
+LOG_DIR: 'log/p10'
 WORKERS: 3
 PRINT_FREQ: 10
 
@@ -34,14 +34,14 @@ TRAIN:
   BEGIN_EPOCH: 0
   END_EPOCH: 100
   RESUME: false
-  OPTIMIZER: sgd
+  OPTIMIZER: adamw
   LR: 0.005
   WD: 0.0005
   MOMENTUM: 0.9
   NESTEROV: false
   FLIP: false
   MULTI_SCALE: false
-  IGNORE_LABEL: 255
+  IGNORE_LABEL: 128
   SCALE_FACTOR: 16
 TEST:
   IMAGE_SIZE:

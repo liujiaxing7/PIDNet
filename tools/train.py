@@ -53,7 +53,7 @@ def main():
         import random
         print('Seeding with', args.seed)
         random.seed(args.seed)
-        torch.manual_seed(args.seed)        
+        torch.manual_seed(args.seed)
 
     logger, final_output_dir, tb_log_dir = create_logger(
         config, args.cfg, 'train')
@@ -75,23 +75,23 @@ def main():
     if torch.cuda.device_count() != len(gpus):
         print("The gpu numbers do not match!")
         return 0
-    
+
     imgnet = 'imagenet' in config.MODEL.PRETRAINED
     model = models.pidnet.get_seg_model(config, imgnet_pretrained=imgnet)
- 
+
     batch_size = config.TRAIN.BATCH_SIZE_PER_GPU * len(gpus)
     # prepare data
     crop_size = (config.TRAIN.IMAGE_SIZE[1], config.TRAIN.IMAGE_SIZE[0])
     train_dataset = eval('datasets.'+config.DATASET.DATASET)(
-                        root=config.DATASET.ROOT,
-                        list_path=config.DATASET.TRAIN_SET,
-                        num_classes=config.DATASET.NUM_CLASSES,
-                        multi_scale=config.TRAIN.MULTI_SCALE,
-                        flip=config.TRAIN.FLIP,
-                        ignore_label=config.TRAIN.IGNORE_LABEL,
-                        base_size=config.TRAIN.BASE_SIZE,
-                        crop_size=crop_size,
-                        scale_factor=config.TRAIN.SCALE_FACTOR)
+        root=config.DATASET.ROOT,
+        list_path=config.DATASET.TRAIN_SET,
+        num_classes=config.DATASET.NUM_CLASSES,
+        multi_scale=config.TRAIN.MULTI_SCALE,
+        flip=config.TRAIN.FLIP,
+        ignore_label=config.TRAIN.IGNORE_LABEL,
+        base_size=config.TRAIN.BASE_SIZE,
+        crop_size=crop_size,
+        scale_factor=config.TRAIN.SCALE_FACTOR)
 
     trainloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -104,14 +104,14 @@ def main():
 
     test_size = (config.TEST.IMAGE_SIZE[1], config.TEST.IMAGE_SIZE[0])
     test_dataset = eval('datasets.'+config.DATASET.DATASET)(
-                        root=config.DATASET.ROOT,
-                        list_path=config.DATASET.TEST_SET,
-                        num_classes=config.DATASET.NUM_CLASSES,
-                        multi_scale=False,
-                        flip=False,
-                        ignore_label=config.TRAIN.IGNORE_LABEL,
-                        base_size=config.TEST.BASE_SIZE,
-                        crop_size=test_size)
+        root=config.DATASET.ROOT,
+        list_path=config.DATASET.TEST_SET,
+        num_classes=config.DATASET.NUM_CLASSES,
+        multi_scale=False,
+        flip=False,
+        ignore_label=config.TRAIN.IGNORE_LABEL,
+        base_size=config.TEST.BASE_SIZE,
+        crop_size=test_size)
 
     testloader = torch.utils.data.DataLoader(
         test_dataset,
@@ -123,34 +123,44 @@ def main():
     # criterion
     if config.LOSS.USE_OHEM:
         sem_criterion = OhemCrossEntropy(ignore_label=config.TRAIN.IGNORE_LABEL,
-                                        thres=config.LOSS.OHEMTHRES,
-                                        min_kept=config.LOSS.OHEMKEEP,
-                                        weight=train_dataset.class_weights)
+                                         thres=config.LOSS.OHEMTHRES,
+                                         min_kept=config.LOSS.OHEMKEEP,
+                                         weight=train_dataset.class_weights)
     else:
         sem_criterion = CrossEntropy(ignore_label=config.TRAIN.IGNORE_LABEL,
-                                    weight=train_dataset.class_weights)
+                                     weight=train_dataset.class_weights)
 
     bd_criterion = BondaryLoss()
-    
+
     model = FullModel(model, sem_criterion, bd_criterion)
     model = nn.DataParallel(model, device_ids=gpus).cuda()
 
+    params_dict = dict(model.named_parameters())
+    params = [{'params': list(params_dict.values()), 'lr': config.TRAIN.LR}]
     # optimizer
     if config.TRAIN.OPTIMIZER == 'sgd':
-        params_dict = dict(model.named_parameters())
-        params = [{'params': list(params_dict.values()), 'lr': config.TRAIN.LR}]
 
         optimizer = torch.optim.SGD(params,
-                                lr=config.TRAIN.LR,
-                                momentum=config.TRAIN.MOMENTUM,
-                                weight_decay=config.TRAIN.WD,
-                                nesterov=config.TRAIN.NESTEROV,
-                                )
+                                    lr=config.TRAIN.LR,
+                                    momentum=config.TRAIN.MOMENTUM,
+                                    weight_decay=config.TRAIN.WD,
+                                    nesterov=config.TRAIN.NESTEROV,
+                                    )
+    elif config.TRAIN.OPTIMIZER == 'adam':
+        optimizer = torch.optim.Adam(params,
+                                     lr=config.TRAIN.LR,
+                                     weight_decay=config.TRAIN.WD,
+                                     betas=(config.TRAIN.MOMENTUM, 0.999))
+    elif config.TRAIN.OPTIMIZER == 'adamw':
+        optimizer = torch.optim.AdamW(params,
+                                      lr=config.TRAIN.LR,
+                                      weight_decay=config.TRAIN.WD,
+                                      betas=(config.TRAIN.MOMENTUM, 0.999))
     else:
         raise ValueError('Only Support SGD optimizer')
 
     epoch_iters = int(train_dataset.__len__() / config.TRAIN.BATCH_SIZE_PER_GPU / len(gpus))
-        
+
     best_mIoU = 0
     last_epoch = 0
     flag_rm = config.TRAIN.RESUME
@@ -161,7 +171,7 @@ def main():
             best_mIoU = checkpoint['best_mIoU']
             last_epoch = checkpoint['epoch']
             dct = checkpoint['state_dict']
-            
+
             model.module.model.load_state_dict({k.replace('model.', ''): v for k, v in dct.items() if k.startswith('model.')})
             optimizer.load_state_dict(checkpoint['optimizer'])
             logger.info("=> loaded checkpoint (epoch {})".format(checkpoint['epoch']))
@@ -170,20 +180,20 @@ def main():
     end_epoch = config.TRAIN.END_EPOCH
     num_iters = config.TRAIN.END_EPOCH * epoch_iters
     real_end = 120+1 if 'camvid' in config.DATASET.TRAIN_SET else end_epoch
-    
+
     for epoch in range(last_epoch, real_end):
 
         current_trainloader = trainloader
         if current_trainloader.sampler is not None and hasattr(current_trainloader.sampler, 'set_epoch'):
             current_trainloader.sampler.set_epoch(epoch)
 
-        train(config, epoch, config.TRAIN.END_EPOCH, 
-                  epoch_iters, config.TRAIN.LR, num_iters,
-                  trainloader, optimizer, model, writer_dict)
+        train(config, epoch, config.TRAIN.END_EPOCH,
+              epoch_iters, config.TRAIN.LR, num_iters,
+              trainloader, optimizer, model, writer_dict)
 
         if flag_rm == 1 or (epoch % 5 == 0 and epoch < real_end - 100) or (epoch >= real_end - 100):
-            valid_loss, mean_IoU, IoU_array = validate(config, 
-                        testloader, model, writer_dict)
+            valid_loss, mean_IoU, IoU_array = validate(config,
+                                                       testloader, model, writer_dict)
         if flag_rm == 1:
             flag_rm = 0
 
@@ -201,16 +211,16 @@ def main():
         if mean_IoU > best_mIoU:
             best_mIoU = mean_IoU
             torch.save(model.module.state_dict(),
-                    os.path.join(final_output_dir, 'best.pt'))
+                       os.path.join(final_output_dir, 'best.pt'))
         msg = 'Loss: {:.3f}, MeanIU: {: 4.4f}, Best_mIoU: {: 4.4f}'.format(
-                    valid_loss, mean_IoU, best_mIoU)
+            valid_loss, mean_IoU, best_mIoU)
         logging.info(msg)
         logging.info(IoU_array)
 
 
 
     torch.save(model.module.state_dict(),
-            os.path.join(final_output_dir, 'final_state.pt'))
+               os.path.join(final_output_dir, 'final_state.pt'))
 
     writer_dict['writer'].close()
     end = timeit.default_timer()

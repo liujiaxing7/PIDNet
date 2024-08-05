@@ -41,8 +41,7 @@ class Wire(BaseDataset):
 
         self.files = self.read_files()
 
-        # self.ignore_label = ignore_label
-        self.ignore_label = 128
+        self.ignore_label = ignore_label
 
         self.color_list = [[128, 128, 128],[128, 64, 128]]
 
