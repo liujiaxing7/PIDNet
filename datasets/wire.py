@@ -6,7 +6,7 @@ import os
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 import torch
 from .base_dataset import BaseDataset
 
@@ -81,14 +81,20 @@ class Wire(BaseDataset):
 
         return color_map.astype(np.uint8)
 
-    def get_crop_img(self, H,img,size=256):
+    def get_crop_img(self, H,img,size=400):
         # 裁剪图像
-        if H > size:
+        if H == 480:
             crop_box = (0, H-size, img.size[0], img.size[1])
             cropped_img = img.crop(crop_box)
             return cropped_img
-        else:
+        elif H == size:
             return img
+        elif H == 360:
+            expanded_img = ImageOps.expand(img, border=(0, 40, 0, 0), fill=(0, 0, 0))
+            return expanded_img
+        else:
+            raise "图像尺寸不符合要求"
+
 
     def __getitem__(self, index):
         item = self.files[index]

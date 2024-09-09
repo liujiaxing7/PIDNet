@@ -3,16 +3,16 @@ CUDNN:
   DETERMINISTIC: false
   ENABLED: true
 GPUS: (0,)
-OUTPUT_DIR: 'runs/p9'
-LOG_DIR: 'log/p9'
+OUTPUT_DIR: 'runs/p17'
+LOG_DIR: 'log/p17'
 WORKERS: 3
 PRINT_FREQ: 10
 
 DATASET:
   DATASET: wire
   ROOT: /media/xin/data/data/seg_data/ours/train_data/Record_data
-  TEST_SET: 's0.0.7/val.txt'
-  TRAIN_SET: 's0.0.7/train.txt'
+  TEST_SET: 's0.0.11/val.txt'
+  TRAIN_SET: 's0.0.11/train.txt'
   NUM_CLASSES: 2
 MODEL:
   NAME: pidnet_s
@@ -32,7 +32,7 @@ TRAIN:
   BATCH_SIZE_PER_GPU: 24
   SHUFFLE: true
   BEGIN_EPOCH: 0
-  END_EPOCH: 100
+  END_EPOCH: 150
   RESUME: false
   OPTIMIZER: sgd
   LR: 0.005
