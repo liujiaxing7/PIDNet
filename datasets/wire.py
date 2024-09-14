@@ -83,14 +83,14 @@ class Wire(BaseDataset):
 
     def get_crop_img(self, H,img,size=400):
         # 裁剪图像
-        if H == 480:
+        if H > size:
             crop_box = (0, H-size, img.size[0], img.size[1])
             cropped_img = img.crop(crop_box)
             return cropped_img
         elif H == size:
             return img
-        elif H == 360:
-            expanded_img = ImageOps.expand(img, border=(0, 40, 0, 0), fill=(0, 0, 0))
+        elif H < size:
+            expanded_img = ImageOps.expand(img, border=(0, size - H, 0, 0), fill=(0, 0, 0))
             return expanded_img
         else:
             raise "图像尺寸不符合要求"
