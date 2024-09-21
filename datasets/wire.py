@@ -24,7 +24,8 @@ class Wire(BaseDataset):
                  scale_factor=16,
                  mean=[0.485, 0.456, 0.406],
                  std=[0.229, 0.224, 0.225],
-                 bd_dilate_size=4
+                 bd_dilate_size=4,
+                 random_gray=False
                  ):
 
         super(Wire, self).__init__(ignore_label, base_size,
@@ -50,6 +51,8 @@ class Wire(BaseDataset):
 
 
         self.bd_dilate_size = bd_dilate_size
+
+        self.gray = random_gray
 
     def read_files(self):
         files = []
@@ -109,7 +112,7 @@ class Wire(BaseDataset):
         label = self.color2label(color_map)
         image, label, edge = self.gen_sample(image, label,
                                              self.multi_scale, self.flip, edge_pad=False,
-                                             edge_size=self.bd_dilate_size, city=False)
+                                             edge_size=self.bd_dilate_size, city=False, random_gray=self.gray)
         return image.copy(), label.copy(), edge.copy(), np.array(size), name
 
     def single_scale_inference(self, config, model, image):

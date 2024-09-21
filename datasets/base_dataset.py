@@ -33,9 +33,13 @@ class BaseDataset(data.Dataset):
     def __len__(self):
         return len(self.files)
 
-    def input_transform(self, image, city=True):
+    def input_transform(self, image, city=True, randomGray=False):
         if city:
             image = image.astype(np.float32)[:, :, ::-1]
+        elif (randomGray and random.random() > 0.5):
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+            image = cv2.merge([image, image, image])
+            image = image.astype(np.float32)
         else:
             image = image.astype(np.float32)
         image = image / 255.0
@@ -104,7 +108,7 @@ class BaseDataset(data.Dataset):
 
 
     def gen_sample(self, image, label,
-                   multi_scale=True, is_flip=True, edge_pad=True, edge_size=4, city=True):
+                   multi_scale=True, is_flip=True, edge_pad=True, edge_size=4, city=True, random_gray=False):
         
         edge = cv2.Canny(label, 0.1, 0.2)
         kernel = np.ones((edge_size, edge_size), np.uint8)
@@ -118,7 +122,7 @@ class BaseDataset(data.Dataset):
             image, label, edge = self.multi_scale_aug(image, label, edge,
                                                 rand_scale=rand_scale)
 
-        image = self.input_transform(image, city=city)
+        image = self.input_transform(image, city=city, randomGray=random_gray)
         label = self.label_transform(label)
         
 

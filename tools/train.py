@@ -91,7 +91,8 @@ def main():
         ignore_label=config.TRAIN.IGNORE_LABEL,
         base_size=config.TRAIN.BASE_SIZE,
         crop_size=crop_size,
-        scale_factor=config.TRAIN.SCALE_FACTOR)
+        scale_factor=config.TRAIN.SCALE_FACTOR,
+        random_gray=config.TRAIN.RANDOM_GRAY)
 
     trainloader = torch.utils.data.DataLoader(
         train_dataset,
